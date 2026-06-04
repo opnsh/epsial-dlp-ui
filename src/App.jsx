@@ -2,10 +2,8 @@ import { useEffect, useMemo, useState } from 'react';
 import {
   ArrowRight,
   Bot,
-  Check,
   ChevronRight,
   Clipboard,
-  Code2,
   Cpu,
   DatabaseZap,
   Eye,
@@ -24,7 +22,6 @@ import {
   ShieldEllipsis,
   Sparkles,
   UserRound,
-  WalletCards,
 } from 'lucide-react';
 import { database } from './services/mockDatabase.js';
 
@@ -39,91 +36,72 @@ const tokenPatterns = [
 
 const content = {
   fr: {
-    nav: { home: 'Vitrine', product: 'Produit', demo: 'Démo', config: 'Configurateur', contact: 'Contact', language: 'Langue' },
+    nav: { home: 'Accueil', product: 'Solution', demo: 'Démo', config: 'Config', contact: 'Contact', language: 'Langue' },
     hero: {
-      badge: 'Protection IA sans friction',
-      title: 'Laissez vos équipes utiliser l’IA sans exposer vos données sensibles.',
+      badge: 'Sécurité locale pour les usages IA',
+      title: 'Sécurisez les échanges entre vos équipes et les IA génératives.',
       body:
-        'Epsial masque automatiquement les noms, e-mails, IBAN, IP, SIRET et données confidentielles avant qu’un prompt parte vers ChatGPT, Claude, Gemini ou Copilot. L’utilisateur continue simplement à copier-coller.',
+        'Epsial détecte et remplace les données sensibles avant qu’un contenu soit soumis à ChatGPT, Claude, Gemini ou Copilot. Texte saisi au clavier, prompt collé ou envoi depuis une interface métier : les valeurs réelles restent sur le poste utilisateur.',
       primary: 'Voir la démo',
       secondary: 'Ouvrir le configurateur',
-      proof: ['Zéro cloud', 'Traitement local', 'Pensé RGPD', 'Copier-coller inchangé'],
+      proof: ['Saisie et collage couverts', 'Filtrage local', 'Tokens réversibles', 'Sans télémétrie'],
     },
     visual: {
       label: 'EPSIAL - PROTECTION LOCALE',
       nodes: [
-        ['1. Copier / coller', 'Une action utilisateur naturelle déclenche l’analyse locale.'],
-        ['2. Tokenisation', '[NOM_1], [IBAN_1], [IP_1] remplacent les valeurs réelles.'],
-        ['3. Réponse IA', 'L’IA travaille sur un contexte utile, sans données sensibles.'],
-        ['4. Restitution locale', 'Le texte final est restauré uniquement sur le poste utilisateur.'],
+        ['1. Saisie ou collage', 'Le contenu est inspecté au moment où l’utilisateur prépare son envoi IA.'],
+        ['2. Filtrage local', '[NOM_1], [IBAN_1] et [EMAIL_1] remplacent les valeurs réelles.'],
+        ['3. Envoi sécurisé', 'L’IA reçoit un contexte exploitable, sans données personnelles brutes.'],
+        ['4. Restitution locale', 'Le texte final peut être restauré uniquement sur le poste utilisateur.'],
       ],
     },
     value: {
       title: 'Une couche de sécurité invisible entre vos équipes et les IA génératives.',
       cards: [
-        ['Gain de temps', 'Plus besoin de nettoyer manuellement un prompt avant de l’envoyer à l’IA. Epsial le fait en arrière-plan.'],
-        ['Réduction du risque DLP', 'Les données sensibles sont remplacées par des tokens avant l’envoi vers les services IA externes.'],
-        ['Adoption facilitée', 'Les collaborateurs gardent leur usage naturel : copier, coller, obtenir une réponse, récupérer le texte final.'],
+        ['Usage naturel', 'Les collaborateurs rédigent, collent ou soumettent un contenu sans devoir nettoyer manuellement chaque demande IA.'],
+        ['Risque DLP réduit', 'Les données sensibles sont remplacées par des tokens avant l’envoi vers les services IA externes.'],
+        ['Contrôle local', 'Les correspondances entre tokens et valeurs réelles restent dans un coffre local, maîtrisé par l’entreprise.'],
       ],
     },
     architecture: {
       label: 'Architecture',
       title: 'Un traitement local, lisible et rassurant pour les équipes sécurité.',
-      subtitle: 'Epsial agit comme un filtre local entre le presse-papier, le navigateur et les interfaces IA autorisées.',
+      subtitle: 'Epsial agit comme un filtre local entre la saisie utilisateur, le navigateur et les interfaces IA autorisées.',
       points: [
-        ['Interception locale', 'Le contenu est analysé sur le poste avant l’envoi vers une IA.'],
+        ['Analyse avant envoi', 'Le contenu soumis à une IA est analysé sur le poste, qu’il soit tapé, collé ou transmis depuis une application.'],
         ['Coffre de correspondance', 'Les valeurs réelles restent dans une table locale chiffrée.'],
         ['Aucune télémétrie', 'Pas de collecte, pas de compte obligatoire, pas d’appel cloud Epsial.'],
       ],
     },
     demo: {
-      label: 'Démo prioritaire',
-      title: 'Trois situations réelles. Même geste utilisateur. Données protégées.',
+      label: 'Démo',
+      title: 'Un envoi IA sécurisé, en quatre étapes lisibles.',
       intro:
-        'Sélectionnez un cas, lancez l’obfuscation, puis regardez la réponse que l’IA aurait réellement pu produire à partir du prompt tokenisé.',
-      input: 'Prompt envoyé par l’utilisateur',
-      locked: 'Prompt verrouillé pour une démonstration stable.',
-      obfuscate: 'Obfusquer avant envoi',
-      tokenized: 'Prompt vu par l’IA',
-      noToken: 'Cliquez sur Obfusquer pour voir la version sécurisée.',
-      aiTitle: 'Réponse IA simulée réaliste',
-      aiEmpty: 'La réponse IA apparaîtra après obfuscation.',
+        'Un exemple volontairement simple montre ce qui se passe quand un utilisateur écrit ou colle un message dans une IA.',
+      input: 'Message rédigé ou collé dans l’IA',
+      locked: 'Exemple verrouillé pour garder la démonstration lisible.',
+      obfuscate: 'Sécuriser l’envoi IA',
+      tokenized: 'Message transmis à l’IA',
+      noToken: 'Cliquez sur Sécuriser pour voir la version envoyée.',
+      aiTitle: 'Réponse IA sur données tokenisées',
+      aiEmpty: 'La réponse IA apparaîtra après sécurisation.',
       vault: 'Restitution locale',
-      reveal: 'Révéler le résultat final',
-      emptyVault: 'Les correspondances locales apparaîtront ici.',
-      workflowTitle: 'Flux utilisateur',
-      workflowText: 'Le collaborateur colle son texte comme d’habitude. Epsial sécurise automatiquement les données sensibles avant l’envoi à l’IA, puis restaure les vraies valeurs localement.',
+      reveal: 'Afficher le résultat restauré',
+      emptyVault: 'Aucune donnée sensible isolée pour le moment.',
+      vaultReady: 'valeurs sensibles conservées localement',
+      workflowTitle: 'Contexte de la démo',
+      workflowText: 'Un collaborateur rédige directement une demande dans un outil IA. Au moment de l’envoi, Epsial remplace les données sensibles par des tokens, puis garde les vraies valeurs localement.',
     },
     cases: [
       {
         id: 'employee',
         icon: FileText,
-        title: 'Correction rapide',
-        role: 'Collaborateur métier',
+        title: 'Message client',
+        role: 'Saisie directe dans une IA',
         prompt:
-          'Bonjour, je m’appelle John Doe, mon IBAN est FR76 1234 5678 9012 3456 7890 123, mon IP est 192.168.1.1. Contactez-moi à john.doe@epsial.fr ou au +33 6 12 34 56 78. Peux-tu corriger les fautes de ce message ?',
+          'Rédige une réponse courte pour John Doe. Son dossier indique l’e-mail john.doe@epsial.fr, le téléphone +33 6 12 34 56 78 et l’IBAN FR76 1234 5678 9012 3456 7890 123. Confirme que la mise à jour de son profil est bien prise en compte.',
         response:
-          'Bonjour, je m’appelle [NOM_1]. Mon IBAN est [IBAN_1] et mon adresse IP est [IP_1]. Vous pouvez me contacter à [EMAIL_1] ou au [TEL_1].',
-      },
-      {
-        id: 'developer',
-        icon: Code2,
-        title: 'Code avec secrets',
-        role: 'Développeur',
-        prompt:
-          'Peux-tu relire ce script ? const owner = "Jane Martin"; const apiEmail = "jane.martin@epsial.fr"; const serverIp = "10.12.4.8"; const iban = "FR76 3000 6000 0112 3456 7890 189"; // client SIRET 552 100 554 00013',
-        response:
-          'Le script fonctionne, mais je recommande de sortir owner, apiEmail, serverIp, iban et SIRET dans des variables d’environnement. Exemple : process.env.OWNER_NAME, process.env.API_EMAIL et process.env.SERVER_IP. Évitez de commiter [NOM_1], [EMAIL_1], [IP_1], [IBAN_1] ou [SIRET_1] dans le dépôt.',
-      },
-      {
-        id: 'finance',
-        icon: WalletCards,
-        title: 'Analyse fournisseur',
-        role: 'Équipe finance',
-        prompt:
-          'Prépare une réponse professionnelle pour John Doe. Le fournisseur indique le SIRET 552 100 554 00013, le compte FR76 1234 5678 9012 3456 7890 123 et le contact john.doe@epsial.fr.',
-        response:
-          'Bonjour [NOM_1], nous avons bien reçu les informations fournisseur associées au SIRET [SIRET_1] et au compte [IBAN_1]. Notre équipe va procéder à la vérification interne et vous recontactera à [EMAIL_1] si un complément est nécessaire.',
+          'Bonjour [NOM_1], nous vous confirmons que la mise à jour de votre profil a bien été prise en compte. Les informations associées à [EMAIL_1], [TEL_1] et [IBAN_1] ont été enregistrées dans votre dossier.',
       },
     ],
     config: {
@@ -137,24 +115,13 @@ const content = {
       activeRules: 'règles actives',
       json: 'Politique JSON générée',
       download: 'Télécharger le JSON',
-      back: 'Retour à la vitrine',
+      back: 'Retour à l\'accueil',
       enabled: 'Actif',
       paused: 'Pause',
     },
-    roadmap: {
-      title: 'Trajectoire produit',
-      items: [
-        ['Avril - Juin 2026', 'Conception technique et prototype'],
-        ['Juillet 2026', 'Bêta privée'],
-        ['Octobre 2026', 'Bêta publique et inscriptions sur Epsial.fr'],
-        ['Décembre 2026', 'Version 1.0 stable'],
-        ['2027', 'Dashboard multi-postes, extension navigateur, MDM'],
-        ['2028+', 'API SIEM et IA sémantique embarquée'],
-      ],
-    },
     cta: {
-      title: 'Une promesse simple : vos équipes gagnent du temps sans donner vos données à l’IA.',
-      body: 'Epsial transforme la contrainte sécurité en automatisme discret.',
+      title: 'Déployer l’IA sans exposer les données sensibles.',
+      body: 'Epsial ajoute un contrôle local clair entre les utilisateurs, les applications métier et les services d’IA générative.',
       contact: 'Nous contacter',
     },
     faq: {
@@ -162,7 +129,7 @@ const content = {
       title: 'Questions fréquentes',
       items: [
         ['Mes données partent-elles sur un serveur ?', 'Non. Epsial fonctionne avec une logique de traitement local : les données sensibles sont détectées et remplacées avant l’envoi vers un outil IA.'],
-        ['Est-ce que l’utilisateur doit changer sa manière de travailler ?', 'Non. Le geste reste le même : copier, coller, obtenir une réponse, puis récupérer localement le texte avec les vraies valeurs.'],
+        ['Est-ce que l’utilisateur doit changer sa manière de travailler ?', 'Non. Il peut rédiger, coller ou soumettre un contenu à une IA. Epsial sécurise l’envoi et peut restaurer les vraies valeurs localement.'],
         ['Que voit réellement l’IA ?', 'L’IA reçoit un prompt utile, mais les valeurs sensibles sont remplacées par des tokens comme [EMAIL_1], [IBAN_1] ou [IP_1].'],
         ['À quoi sert le JSON du configurateur ?', 'Il simule une politique exportable pour une DSI : interfaces IA autorisées, règles de détection actives, traitement local et absence de télémétrie.'],
         ['Qui développe le projet ?', 'Le projet Epsial est développé par une équipe de futurs ingénieurs spécialisés en logiciel, cybersécurité et usages IA en entreprise.'],
@@ -174,100 +141,81 @@ const content = {
       body: 'Vous préparez un déploiement IA, un projet DLP ou une démonstration interne ? Écrivez-nous et nous vous répondrons avec une approche claire, technique et concrète.',
       email: 'contact@epsial.fr',
       mailButton: 'Envoyer un e-mail',
-      back: 'Retour à la vitrine',
+      back: 'Retour à l\'accueil',
       cards: [
-        ['Démonstration', 'Voir le parcours complet : prompt, obfuscation, réponse IA et restitution locale.'],
+        ['Démonstration', 'Voir le parcours complet : saisie, filtrage local, réponse IA et restitution.'],
         ['Technique', 'Discuter règles de détection, intégration navigateur, JSON de politique et contraintes DSI.'],
         ['Partenariat', 'Explorer un pilote, une présentation école/entreprise ou une collaboration produit.'],
       ],
     },
   },
   en: {
-    nav: { home: 'Showcase', product: 'Product', demo: 'Demo', config: 'Configurator', contact: 'Contact', language: 'Language' },
+    nav: { home: 'Home', product: 'Solution', demo: 'Demo', config: 'Config', contact: 'Contact', language: 'Language' },
     hero: {
-      badge: 'Frictionless AI protection',
-      title: 'Let your teams use AI without exposing sensitive data.',
+      badge: 'Local security for AI workflows',
+      title: 'Secure the exchanges between your teams and generative AI.',
       body:
-        'Epsial automatically masks names, emails, IBANs, IP addresses, SIRET numbers, and confidential data before prompts reach ChatGPT, Claude, Gemini, or Copilot. Users keep copying and pasting as usual.',
+        'Epsial detects and replaces sensitive data before content is submitted to ChatGPT, Claude, Gemini, or Copilot. Typed text, pasted prompts, or submissions from business tools: real values stay on the user workstation.',
       primary: 'Watch the demo',
       secondary: 'Open configurator',
-      proof: ['Zero cloud', 'Local processing', 'GDPR-minded', 'Same copy-paste flow'],
+      proof: ['Typing and paste covered', 'Local filtering', 'Reversible tokens', 'No telemetry'],
     },
     visual: {
       label: 'EPSIAL LOCAL GUARD',
       nodes: [
-        ['1. Copy / paste', 'A natural user action triggers local inspection.'],
-        ['2. Tokenization', '[NOM_1], [IBAN_1], [IP_1] replace raw values.'],
-        ['3. AI response', 'The AI works on useful context, not sensitive data.'],
-        ['4. Local reveal', 'The final text is restored only on the workstation.'],
+        ['1. Type or paste', 'Content is inspected when the user prepares an AI submission.'],
+        ['2. Local filtering', '[NOM_1], [IBAN_1], and [EMAIL_1] replace real values.'],
+        ['3. Secured submission', 'The AI receives useful context without raw personal data.'],
+        ['4. Local reveal', 'The final text can be restored only on the user workstation.'],
       ],
     },
     value: {
       title: 'An invisible security layer between your teams and generative AI.',
       cards: [
-        ['Save time', 'No manual prompt cleanup before using AI. Epsial handles it in the background.'],
+        ['Natural workflow', 'Employees can type, paste, or submit content without manually cleaning each AI request.'],
         ['Reduce DLP risk', 'Sensitive data is replaced with tokens before content is sent to external AI services.'],
-        ['Easy adoption', 'Employees keep their natural workflow: copy, paste, get an answer, recover the final text.'],
+        ['Local control', 'Mappings between tokens and real values stay in a local vault controlled by the organization.'],
       ],
     },
     architecture: {
       label: 'Architecture',
       title: 'Local processing that security teams can understand and trust.',
-      subtitle: 'Epsial acts as a local filter between the clipboard, the browser, and authorized AI interfaces.',
+      subtitle: 'Epsial acts as a local filter between user input, the browser, and authorized AI interfaces.',
       points: [
-        ['Local interception', 'Content is analyzed on the workstation before it reaches an AI tool.'],
+        ['Pre-send analysis', 'Content submitted to AI is analyzed on the workstation, whether typed, pasted, or sent from an application.'],
         ['Mapping vault', 'Real values stay in an encrypted local correspondence table.'],
         ['No telemetry', 'No collection, no mandatory account, no Epsial cloud call.'],
       ],
     },
     demo: {
-      label: 'Main demo',
-      title: 'Three real situations. Same user gesture. Protected data.',
+      label: 'Demo',
+      title: 'One secured AI submission, explained in four clear steps.',
       intro:
-        'Select a case, run obfuscation, then see the kind of answer the AI could realistically produce from the tokenized prompt.',
-      input: 'User prompt',
-      locked: 'Prompt locked for a stable demonstration.',
-      obfuscate: 'Obfuscate before sending',
-      tokenized: 'Prompt seen by AI',
-      noToken: 'Click Obfuscate to see the secured version.',
-      aiTitle: 'Realistic simulated AI response',
-      aiEmpty: 'The AI response will appear after obfuscation.',
+        'A deliberately simple example shows what happens when a user writes or pastes a message into an AI tool.',
+      input: 'Message typed or pasted into AI',
+      locked: 'Example locked to keep the demonstration readable.',
+      obfuscate: 'Secure AI submission',
+      tokenized: 'Message sent to AI',
+      noToken: 'Click Secure to see the submitted version.',
+      aiTitle: 'AI response on tokenized data',
+      aiEmpty: 'The AI response will appear after securing the message.',
       vault: 'Local reveal',
-      reveal: 'Reveal final result',
-      emptyVault: 'Local mappings will appear here.',
-      workflowTitle: 'User flow',
-      workflowText: 'The employee pastes text as usual. Epsial automatically secures sensitive data before AI submission, then restores real values locally.',
+      reveal: 'Show restored result',
+      emptyVault: 'No sensitive data isolated yet.',
+      vaultReady: 'sensitive values kept locally',
+      workflowTitle: 'Demo context',
+      workflowText: 'An employee writes a request directly in an AI tool. When the message is submitted, Epsial replaces sensitive data with tokens and keeps the real values locally.',
     },
     cases: [
       {
         id: 'employee',
         icon: FileText,
-        title: 'Fast proofreading',
-        role: 'Business employee',
+        title: 'Customer message',
+        role: 'Direct typing in AI',
         prompt:
-          'Hello, my name is John Doe, my IBAN is FR76 1234 5678 9012 3456 7890 123, my IP is 192.168.1.1. Contact me at john.doe@epsial.fr or +33 6 12 34 56 78. Can you proofread this message?',
+          'Write a short response for John Doe. His file lists john.doe@epsial.fr, phone +33 6 12 34 56 78, and IBAN FR76 1234 5678 9012 3456 7890 123. Confirm that his profile update has been processed.',
         response:
-          'Hello, my name is [NOM_1]. My IBAN is [IBAN_1] and my IP address is [IP_1]. You can contact me at [EMAIL_1] or [TEL_1].',
-      },
-      {
-        id: 'developer',
-        icon: Code2,
-        title: 'Code with secrets',
-        role: 'Developer',
-        prompt:
-          'Can you review this script? const owner = "Jane Martin"; const apiEmail = "jane.martin@epsial.fr"; const serverIp = "10.12.4.8"; const iban = "FR76 3000 6000 0112 3456 7890 189"; // client SIRET 552 100 554 00013',
-        response:
-          'The script is readable, but owner, apiEmail, serverIp, iban, and SIRET should be moved to environment variables. Use names such as process.env.OWNER_NAME, process.env.API_EMAIL, and process.env.SERVER_IP. Avoid committing [NOM_1], [EMAIL_1], [IP_1], [IBAN_1], or [SIRET_1] to the repository.',
-      },
-      {
-        id: 'finance',
-        icon: WalletCards,
-        title: 'Supplier analysis',
-        role: 'Finance team',
-        prompt:
-          'Prepare a professional response for John Doe. The supplier lists SIRET 552 100 554 00013, account FR76 1234 5678 9012 3456 7890 123 and contact john.doe@epsial.fr.',
-        response:
-          'Hello [NOM_1], we have received the supplier information associated with SIRET [SIRET_1] and account [IBAN_1]. Our team will proceed with the internal verification and contact you at [EMAIL_1] if additional details are required.',
+          'Hello [NOM_1], we confirm that your profile update has been processed. The information associated with [EMAIL_1], [TEL_1], and [IBAN_1] has been saved in your file.',
       },
     ],
     config: {
@@ -285,20 +233,9 @@ const content = {
       enabled: 'Enabled',
       paused: 'Paused',
     },
-    roadmap: {
-      title: 'Product trajectory',
-      items: [
-        ['April - June 2026', 'Technical design and prototype'],
-        ['July 2026', 'Private beta'],
-        ['October 2026', 'Public beta and Epsial.fr registration'],
-        ['December 2026', 'Stable v1.0'],
-        ['2027', 'Multi-host dashboard, browser extension, MDM'],
-        ['2028+', 'SIEM API and embedded semantic AI'],
-      ],
-    },
     cta: {
-      title: 'A simple promise: your teams save time without handing sensitive data to AI.',
-      body: 'Epsial turns security constraints into a quiet automatic reflex.',
+      title: 'Deploy AI without exposing sensitive data.',
+      body: 'Epsial adds a clear local control layer between users, business applications, and generative AI services.',
       contact: 'Contact us',
     },
     faq: {
@@ -306,7 +243,7 @@ const content = {
       title: 'Frequently asked questions',
       items: [
         ['Do my data leave my workstation?', 'No. Epsial is designed around local processing: sensitive data is detected and replaced before content is sent to an AI tool.'],
-        ['Do users need to change how they work?', 'No. The workflow stays the same: copy, paste, get an answer, then recover real values locally.'],
+        ['Do users need to change how they work?', 'No. They can type, paste, or submit content to AI. Epsial secures the submission and can restore real values locally.'],
         ['What does the AI actually see?', 'The AI receives useful context, but sensitive values are replaced with tokens such as [EMAIL_1], [IBAN_1], or [IP_1].'],
         ['What is the configurator JSON for?', 'It simulates an exportable IT policy: authorized AI interfaces, active detection rules, local processing, and no telemetry.'],
         ['Who developed the project?', 'Epsial is developed by a team of future engineers focused on software, cybersecurity, and enterprise AI use cases.'],
@@ -320,7 +257,7 @@ const content = {
       mailButton: 'Send an email',
       back: 'Back to showcase',
       cards: [
-        ['Demo', 'See the full journey: prompt, obfuscation, AI response, and local reveal.'],
+        ['Demo', 'See the full journey: input, local filtering, AI response, and reveal.'],
         ['Technical', 'Discuss detection rules, browser integration, policy JSON, and IT constraints.'],
         ['Partnership', 'Explore a pilot, a school/company presentation, or a product collaboration.'],
       ],
@@ -392,8 +329,7 @@ function App() {
           <Hero t={t} setPage={setPage} />
           <ValueSection t={t} />
           <ArchitectureSection t={t} />
-          <DemoSection t={t} language={language} />
-          <RoadmapSection t={t} />
+          <DemoSection t={t} />
           <FaqSection t={t} />
           <FinalCta t={t} setPage={setPage} />
         </main>
@@ -415,32 +351,32 @@ function TopNav({ language, setLanguage, t, page, setPage }) {
   };
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-slate-950/90 backdrop-blur-xl">
-      <nav className="mx-auto flex max-w-7xl flex-wrap items-center justify-between gap-3 px-4 py-3 sm:px-6 lg:px-8">
-        <button onClick={() => goHomeAnchor('#top')} className="flex items-center gap-3">
-          <span className="flex h-10 w-10 items-center justify-center rounded-md bg-emerald-400 text-slate-950 shadow-glow">
+    <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/95 backdrop-blur-xl">
+      <nav className="mx-auto flex max-w-7xl items-center gap-2 px-2 py-2 sm:px-6 lg:px-8">
+        <button onClick={() => goHomeAnchor('#top')} className="flex shrink-0 items-center gap-2">
+          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-emerald-400 text-slate-950 shadow-glow sm:h-10 sm:w-10">
             <ShieldCheck className="h-5 w-5" />
           </span>
-          <span className="text-xl font-semibold text-white">Epsial</span>
+          <span className="hidden text-xl font-semibold text-white md:inline">Epsial</span>
         </button>
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="scrollbar-none flex min-w-0 flex-1 items-center justify-end gap-1 overflow-x-auto">
           <NavButton active={page === 'home'} onClick={() => goHomeAnchor('#top')}>{t.nav.home}</NavButton>
           <NavButton onClick={() => goHomeAnchor('#product')}>{t.nav.product}</NavButton>
           <NavButton onClick={() => goHomeAnchor('#demo')}>{t.nav.demo}</NavButton>
           <NavButton active={page === 'config'} onClick={() => setPage('config')}>{t.nav.config}</NavButton>
           <NavButton active={page === 'contact'} onClick={() => setPage('contact')}>{t.nav.contact}</NavButton>
-          <div className="flex items-center gap-1 rounded-md border border-white/15 bg-slate-900 p-1" aria-label={t.nav.language}>
+          <div className="flex shrink-0 items-center gap-0.5 rounded-md border border-white/15 bg-slate-900 p-0.5 sm:gap-1 sm:p-1" aria-label={t.nav.language}>
             <button
               onClick={() => setLanguage('fr')}
-              className={`rounded px-3 py-1.5 text-sm font-semibold ${language === 'fr' ? 'bg-emerald-400 text-slate-950' : 'text-slate-300 hover:bg-white/10'}`}
+              className={`rounded px-1.5 py-1.5 text-[11px] font-semibold sm:px-3 sm:text-sm ${language === 'fr' ? 'bg-emerald-400 text-slate-950' : 'text-slate-300 hover:bg-white/10'}`}
             >
-              Français
+              FR
             </button>
             <button
               onClick={() => setLanguage('en')}
-              className={`rounded px-3 py-1.5 text-sm font-semibold ${language === 'en' ? 'bg-emerald-400 text-slate-950' : 'text-slate-300 hover:bg-white/10'}`}
+              className={`rounded px-1.5 py-1.5 text-[11px] font-semibold sm:px-3 sm:text-sm ${language === 'en' ? 'bg-emerald-400 text-slate-950' : 'text-slate-300 hover:bg-white/10'}`}
             >
-              English
+              EN
             </button>
           </div>
         </div>
@@ -451,7 +387,7 @@ function TopNav({ language, setLanguage, t, page, setPage }) {
 
 function NavButton({ active, onClick, children }) {
   return (
-    <button onClick={onClick} className={`rounded-md px-3 py-2 text-sm font-medium text-slate-300 hover:bg-white/10 hover:text-white ${active ? 'bg-white/10 text-white' : ''}`}>
+    <button onClick={onClick} className={`shrink-0 whitespace-nowrap rounded-md px-1.5 py-2 text-[11px] font-medium text-slate-300 hover:bg-white/10 hover:text-white sm:px-3 sm:text-sm ${active ? 'bg-white/10 text-white' : ''}`}>
       {children}
     </button>
   );
@@ -460,7 +396,7 @@ function NavButton({ active, onClick, children }) {
 function Hero({ t, setPage }) {
   return (
     <section id="top" className="relative overflow-hidden">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_16%_22%,rgba(23,201,100,0.22),transparent_28%),radial-gradient(circle_at_82%_18%,rgba(56,189,248,0.18),transparent_32%),linear-gradient(135deg,#08111f_0%,#0d1b33_48%,#111827_100%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(135deg,#07111d_0%,#0d1b2b_54%,#10251d_100%)]" />
       <div className="relative mx-auto grid max-w-7xl gap-10 px-4 pb-14 pt-16 sm:px-6 lg:grid-cols-[1.02fr_0.98fr] lg:px-8 lg:pb-20 lg:pt-24">
         <div className="flex flex-col justify-center">
           <div className="mb-5 inline-flex w-fit items-center gap-2 rounded-md border border-emerald-300/35 bg-emerald-300/10 px-3 py-2 text-sm font-medium text-emerald-100">
@@ -596,32 +532,30 @@ function ArchitectureSection({ t }) {
   );
 }
 
-function DemoSection({ t, language }) {
+function DemoSection({ t }) {
   return (
     <section id="demo" className="bg-slate-950 py-16">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="mb-8 grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+        <div className="mb-8 grid gap-5 lg:grid-cols-[0.86fr_1.14fr] lg:items-end">
           <div>
             <p className="text-sm font-semibold uppercase text-emerald-300">{t.demo.label}</p>
             <h2 className="mt-3 text-3xl font-semibold text-white">{t.demo.title}</h2>
           </div>
           <p className="text-lg leading-8 text-slate-300">{t.demo.intro}</p>
         </div>
-        <DemoWidget t={t} language={language} />
+        <DemoWidget t={t} />
       </div>
     </section>
   );
 }
 
 function DemoWidget({ t }) {
-  const [caseId, setCaseId] = useState(t.cases[0].id);
   const [obfuscated, setObfuscated] = useState('');
   const [vault, setVault] = useState([]);
   const [revealed, setRevealed] = useState('');
-  const activeCase = t.cases.find((item) => item.id === caseId) || t.cases[0];
+  const activeCase = t.cases[0];
 
   useEffect(() => {
-    setCaseId(t.cases[0].id);
     setObfuscated('');
     setVault([]);
     setRevealed('');
@@ -636,44 +570,28 @@ function DemoWidget({ t }) {
     setRevealed('');
   };
 
-  const selectCase = (id) => {
-    setCaseId(id);
-    setObfuscated('');
-    setVault([]);
-    setRevealed('');
-  };
-
   return (
-    <div className="rounded-md border border-white/10 bg-white/10 p-3 shadow-glow">
-      <div className="grid gap-3 lg:grid-cols-3">
-        {t.cases.map((item) => {
-          const Icon = item.icon;
-          return (
-            <button
-              key={item.id}
-              onClick={() => selectCase(item.id)}
-              className={`rounded-md border p-4 text-left transition ${activeCase.id === item.id ? 'border-emerald-300 bg-emerald-300/15 text-white' : 'border-white/10 bg-slate-900 text-slate-300 hover:bg-slate-800'}`}
-            >
-              <Icon className="h-5 w-5 text-emerald-300" />
-              <span className="mt-3 block font-semibold">{item.title}</span>
-              <span className="mt-1 block text-sm text-slate-400">{item.role}</span>
-            </button>
-          );
-        })}
-      </div>
-
-      <div className="mt-3 grid gap-3 lg:grid-cols-[0.95fr_1.05fr]">
-        <section className="rounded-md border border-white/10 bg-slate-900 p-5">
-          <div className="mb-4 rounded-md border border-emerald-300/25 bg-emerald-300/10 p-4">
-            <p className="text-sm font-semibold text-emerald-100">{t.demo.workflowTitle}</p>
-            <p className="mt-2 text-sm leading-6 text-slate-300">{t.demo.workflowText}</p>
+    <div className="rounded-md border border-white/10 bg-slate-900/70 p-4 shadow-glow">
+      <div className="grid gap-4 lg:grid-cols-[0.92fr_1.08fr]">
+        <section className="rounded-md border border-white/10 bg-slate-950/70 p-5">
+          <div className="mb-5 flex items-start gap-3 rounded-md border border-emerald-300/20 bg-emerald-300/10 p-4">
+            <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-md bg-emerald-400 text-slate-950">
+              <FileText className="h-5 w-5" />
+            </span>
+            <div>
+              <p className="text-sm font-semibold text-emerald-100">{t.demo.workflowTitle}</p>
+              <p className="mt-2 text-sm leading-6 text-slate-300">{t.demo.workflowText}</p>
+            </div>
           </div>
-          <label className="text-sm font-semibold text-slate-200" htmlFor="demo-input">{t.demo.input}</label>
+          <div className="mb-3 flex items-center justify-between gap-3">
+            <label className="text-sm font-semibold text-slate-200" htmlFor="demo-input">{t.demo.input}</label>
+            <span className="rounded-md border border-white/10 bg-white/5 px-2.5 py-1 text-xs text-slate-300">{activeCase.role}</span>
+          </div>
           <textarea
             id="demo-input"
             value={activeCase.prompt}
             readOnly
-            className="mt-3 min-h-64 w-full resize-none rounded-md border border-slate-700 bg-slate-950 p-4 text-sm leading-7 text-slate-100 outline-none"
+            className="min-h-52 w-full resize-none rounded-md border border-slate-700 bg-slate-950 p-4 text-sm leading-7 text-slate-100 outline-none"
           />
           <p className="mt-2 text-sm text-slate-400">{t.demo.locked}</p>
           <button onClick={runObfuscation} className="mt-4 inline-flex items-center gap-2 rounded-md bg-emerald-400 px-4 py-2 font-semibold text-slate-950 hover:bg-emerald-300">
@@ -683,8 +601,10 @@ function DemoWidget({ t }) {
         </section>
 
         <section className="grid gap-3">
-          <ResultPanel icon={Layers3} title={t.demo.tokenized} content={obfuscated || t.demo.noToken} />
-          <ResultPanel icon={Bot} title={t.demo.aiTitle} content={simulatedAiResponse} />
+          <div className="grid gap-3 md:grid-cols-2">
+            <ResultPanel icon={Layers3} title={t.demo.tokenized} content={obfuscated || t.demo.noToken} />
+            <ResultPanel icon={Bot} title={t.demo.aiTitle} content={simulatedAiResponse} />
+          </div>
           <div className="rounded-md border border-emerald-400/25 bg-emerald-400/10 p-5">
             <div className="flex flex-wrap items-center justify-between gap-3">
               <h3 className="font-semibold text-emerald-100">{t.demo.vault}</h3>
@@ -697,8 +617,14 @@ function DemoWidget({ t }) {
                 {t.demo.reveal}
               </button>
             </div>
-            <div className="mt-4 flex flex-wrap gap-2">
-              {vault.length ? vault.map((item) => <TokenChip key={item.token} token={item.token} />) : <span className="text-sm text-slate-400">{t.demo.emptyVault}</span>}
+            <div className="mt-4 rounded-md bg-slate-950/60 p-4 text-sm leading-6 text-slate-300">
+              {vault.length ? (
+                <span>
+                  <strong className="text-emerald-100">{vault.length}</strong> {t.demo.vaultReady}
+                </span>
+              ) : (
+                <span>{t.demo.emptyVault}</span>
+              )}
             </div>
             {revealed && <p className="mt-4 rounded-md bg-slate-950 p-4 text-sm leading-7 text-slate-100">{revealed}</p>}
           </div>
@@ -718,10 +644,6 @@ function ResultPanel({ icon: Icon, title, content }) {
       <p className="mt-3 min-h-24 rounded-md bg-slate-950 p-4 text-sm leading-7 text-slate-200">{content}</p>
     </div>
   );
-}
-
-function TokenChip({ token }) {
-  return <span className="rounded-md border border-emerald-300/30 bg-emerald-300/10 px-2.5 py-1 text-xs font-semibold text-emerald-100">{token}</span>;
 }
 
 function ConfigurationSection({ t, language, setPage }) {
@@ -839,32 +761,6 @@ function ConfigurationSection({ t, language, setPage }) {
   );
 }
 
-function RoadmapSection({ t }) {
-  return (
-    <section className="bg-white py-16 text-slate-950">
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8">
-        <h2 className="text-3xl font-semibold">{t.roadmap.title}</h2>
-        <div className="mt-8 grid gap-0">
-          {t.roadmap.items.map(([date, title], index) => (
-            <div key={date} className="grid grid-cols-[32px_1fr] gap-4">
-              <div className="flex flex-col items-center">
-                <span className="flex h-8 w-8 items-center justify-center rounded-md bg-emerald-500 text-white">
-                  {index < 2 ? <Check className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
-                </span>
-                {index !== t.roadmap.items.length - 1 && <span className="h-full min-h-12 w-px bg-slate-200" />}
-              </div>
-              <div className="pb-6">
-                <p className="text-sm font-semibold text-emerald-700">{date}</p>
-                <p className="mt-1 font-semibold text-slate-900">{title}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-}
-
 function FaqSection({ t }) {
   const [openIndex, setOpenIndex] = useState(0);
 
@@ -898,7 +794,7 @@ function FaqSection({ t }) {
 function FinalCta({ t, setPage }) {
   return (
     <section className="bg-slate-950 px-4 py-16 sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-5xl rounded-md border border-white/10 bg-white/10 p-8 text-center shadow-glow">
+      <div className="mx-auto max-w-4xl text-center">
         <Globe2 className="mx-auto h-8 w-8 text-emerald-300" />
         <h2 className="mx-auto mt-4 max-w-3xl text-3xl font-semibold text-white">{t.cta.title}</h2>
         <p className="mx-auto mt-3 max-w-2xl leading-7 text-slate-300">{t.cta.body}</p>
@@ -914,7 +810,7 @@ function FinalCta({ t, setPage }) {
 function ContactPage({ t, setPage }) {
   return (
     <main className="relative min-h-[calc(100vh-68px)] overflow-hidden bg-[linear-gradient(135deg,#08111f,#111827_55%,#092016)] px-4 py-16 text-white sm:px-6 lg:px-8">
-      <div className="absolute inset-0 bg-[radial-gradient(circle_at_18%_20%,rgba(23,201,100,0.2),transparent_28%),radial-gradient(circle_at_88%_12%,rgba(56,189,248,0.16),transparent_30%)]" />
+      <div className="absolute inset-0 bg-[linear-gradient(115deg,rgba(23,201,100,0.16),transparent_42%,rgba(56,189,248,0.1))]" />
       <div className="relative mx-auto grid max-w-6xl gap-8 lg:grid-cols-[0.9fr_1.1fr] lg:items-center">
         <div>
           <p className="text-sm font-semibold uppercase text-emerald-300">{t.contact.label}</p>

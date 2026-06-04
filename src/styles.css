@@ -38,3 +38,11 @@ button:disabled {
   background: rgba(23, 201, 100, 0.35);
   color: #f8fafc;
 }
+
+.scrollbar-none {
+  scrollbar-width: none;
+}
+
+.scrollbar-none::-webkit-scrollbar {
+  display: none;
+}
