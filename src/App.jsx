@@ -355,9 +355,9 @@ function TopNav({ language, setLanguage, t, page, setPage }) {
       <nav className="mx-auto flex max-w-7xl items-center gap-2 px-2 py-2 sm:px-6 lg:px-8">
         <button onClick={() => goHomeAnchor('#top')} className="flex shrink-0 items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-md border border-white/10 bg-white/5 shadow-glow sm:h-10 sm:w-10">
-            <img src="/favicon.png" alt="" className="h-7 w-7 object-contain sm:h-9 sm:w-9" />
+            <img src="/flow.png" alt="" className="h-7 w-7 object-contain sm:h-9 sm:w-9" />
           </span>
-          <span className="hidden text-xl font-semibold text-white md:inline">Epsial</span>
+          <span className="hidden text-xl font-semibold text-white md:inline">EPSIAL</span>
         </button>
         <div className="scrollbar-none flex min-w-0 flex-1 items-center justify-end gap-1 overflow-x-auto">
           <NavButton active={page === 'home'} onClick={() => goHomeAnchor('#top')}>{t.nav.home}</NavButton>
