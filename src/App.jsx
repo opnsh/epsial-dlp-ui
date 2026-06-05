@@ -354,8 +354,8 @@ function TopNav({ language, setLanguage, t, page, setPage }) {
     <header className="sticky top-0 z-50 border-b border-slate-800 bg-slate-950/95 backdrop-blur-xl">
       <nav className="mx-auto flex max-w-7xl items-center gap-2 px-2 py-2 sm:px-6 lg:px-8">
         <button onClick={() => goHomeAnchor('#top')} className="flex shrink-0 items-center gap-2">
-          <span className="flex h-8 w-8 items-center justify-center rounded-md bg-emerald-400 text-slate-950 shadow-glow sm:h-10 sm:w-10">
-            <ShieldCheck className="h-5 w-5" />
+          <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-md border border-white/10 bg-white/5 shadow-glow sm:h-10 sm:w-10">
+            <img src="/favicon.png" alt="" className="h-7 w-7 object-contain sm:h-9 sm:w-9" />
           </span>
           <span className="hidden text-xl font-semibold text-white md:inline">Epsial</span>
         </button>
