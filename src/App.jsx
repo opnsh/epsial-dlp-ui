@@ -34,6 +34,146 @@ const tokenPatterns = [
   { type: 'SIRET', regex: /\b\d{3}\s?\d{3}\s?\d{3}\s?\d{5}\b/g },
 ];
 
+const defaultPolicyConfig = {
+  log_level: 'INFO',
+  audit_mode: false,
+  pii: {
+    use_nlp: true,
+    nlp_model: 'fr_core_news_sm',
+    detect_email: true,
+    detect_phone: true,
+    detect_iban: true,
+    detect_siret: true,
+    detect_ip: true,
+    detect_date: true,
+    detect_nir: true,
+    detect_card: true,
+    detect_names: true,
+    detect_orgs: false,
+    detect_locations: true,
+    detect_custom_keywords: true,
+    custom_keywords: ['confidentiel', 'secret projet', 'token api interne'],
+    custom_names: [],
+    custom_locations: [],
+    custom_organizations: [],
+  },
+  storage: {
+    ttl_seconds: null,
+    db_path: null,
+    key_path: null,
+  },
+  ui: {
+    show_systray: true,
+    show_notifications: true,
+    notification_duration: 3,
+    pause_duration_minutes: 15,
+  },
+  monitor: {
+    poll_interval: 0.4,
+    monitor_clipboard: null,
+    monitor_primary: false,
+    only_when_ai_active: true,
+    fallback_when_detection_unavailable: false,
+    extra_ai_domains: {},
+  },
+  targets: {
+    web_domains: [
+      'chatgpt.com',
+      'chat.openai.com',
+      'claude.ai',
+      'gemini.google.com',
+      'aistudio.google.com',
+      'copilot.microsoft.com',
+      'meta.ai',
+      'chat.mistral.ai',
+      'mistral.ai',
+      'perplexity.ai',
+      'huggingface.co',
+      'poe.com',
+      'you.com',
+      'character.ai',
+      'chat.deepseek.com',
+      'deepseek.com',
+      'grok.com',
+      'pi.ai',
+      'coral.cohere.com',
+    ],
+    title_keywords: {
+      chatgpt: 'ChatGPT',
+      'chat.openai.com': 'ChatGPT',
+      claude: 'Claude',
+      'claude.ai': 'Claude',
+      gemini: 'Gemini',
+      'aistudio.google.com': 'Google AI Studio',
+      copilot: 'Copilot',
+      mistral: 'Mistral',
+      perplexity: 'Perplexity',
+      deepseek: 'DeepSeek',
+      huggingface: 'Hugging Face',
+      huggingchat: 'HuggingChat',
+      'meta ai': 'Meta AI',
+      'character.ai': 'Character.AI',
+      grok: 'Grok',
+      ollama: 'Ollama',
+      'lm studio': 'LM Studio',
+      'poe.com': 'Poe',
+      'you.com': 'You.com',
+      'pi.ai': 'Pi',
+    },
+    desktop_apps: [
+      {
+        service: 'Claude Desktop',
+        processes: ['claude'],
+        wm_classes: ['claude', 'claude-desktop'],
+        title_keywords: ['claude'],
+      },
+      {
+        service: 'ChatGPT Desktop',
+        processes: ['chatgpt'],
+        wm_classes: ['chatgpt', 'chat-gpt'],
+        title_keywords: ['chatgpt'],
+      },
+      {
+        service: 'Microsoft Copilot',
+        processes: ['copilot'],
+        wm_classes: ['copilot'],
+        title_keywords: ['copilot'],
+      },
+      {
+        service: 'LM Studio',
+        processes: ['lmstudio'],
+        wm_classes: ['lmstudio', 'lm-studio'],
+        title_keywords: ['lm studio'],
+      },
+      {
+        service: 'Ollama',
+        processes: ['ollama'],
+        wm_classes: ['ollama'],
+        title_keywords: ['ollama'],
+      },
+    ],
+    browser_processes_windows: ['brave.exe', 'chrome.exe', 'chromium.exe', 'firefox.exe', 'msedge.exe', 'opera.exe', 'opera_gx.exe', 'vivaldi.exe'],
+  },
+  integration: {
+    native_host_name: 'com.dlpai.agent',
+    browser_extension_id_chrome: '',
+    browser_extension_id_firefox: 'dlp-browser@example.com',
+    enable_browser_extension: true,
+    enable_gnome_shell_extension: true,
+  },
+};
+
+const configSectionLabels = {
+  log_level: 'Général',
+  audit_mode: 'Mode audit',
+  pii: 'Détection PII',
+  storage: 'Stockage local',
+  ui: 'Interface utilisateur',
+  monitor: 'Monitoring',
+  targets: 'Cibles IA',
+  integration: 'Intégrations',
+};
+
 const content = {
   fr: {
     nav: { home: 'Accueil', product: 'Solution', demo: 'Démo', config: 'Config', contact: 'Contact', language: 'Langue' },
@@ -105,19 +245,18 @@ const content = {
       },
     ],
     config: {
-      label: 'Configuration publique',
-      title: 'Montrez aux DSI ce qui est configurable, sans connexion.',
+      label: 'Configurateur',
+      title: 'Éditeur complet de configuration Epsial',
       body:
-        'La maquette ci-dessous illustre une politique exportable en JSON : interfaces IA autorisées, règles de détection, traitement local et absence de télémétrie.',
-      interfaces: 'Interfaces IA ciblées',
-      activeInterfaces: 'interfaces actives',
-      rules: 'Règles de détection des données sensibles',
-      activeRules: 'règles actives',
+        'Chaque option du fichier JSON réel peut être modifiée depuis cette interface : détection PII, stockage, UI, monitoring, cibles IA, applications desktop et intégrations.',
       json: 'Politique JSON générée',
       download: 'Télécharger le JSON',
       back: 'Retour à l\'accueil',
-      enabled: 'Actif',
-      paused: 'Pause',
+      reset: 'Réinitialiser',
+      add: 'Ajouter',
+      remove: 'Supprimer',
+      nullValue: 'Valeur nulle',
+      useValue: 'Définir une valeur',
     },
     cta: {
       title: 'Déployer l’IA sans exposer les données sensibles.',
@@ -219,19 +358,18 @@ const content = {
       },
     ],
     config: {
-      label: 'Public configuration',
-      title: 'Show IT teams what can be configured, without a login.',
+      label: 'Configurator',
+      title: 'Complete Epsial configuration editor',
       body:
-        'The mockup below illustrates an exportable JSON policy: allowed AI interfaces, detection rules, local processing, and no telemetry.',
-      interfaces: 'Target AI interfaces',
-      activeInterfaces: 'active interfaces',
-      rules: 'Detection rules',
-      activeRules: 'active rules',
+        'Every option from the real JSON file can be edited here: PII detection, storage, UI, monitoring, AI targets, desktop applications, and integrations.',
       json: 'Generated JSON policy',
       download: 'Download JSON',
-      back: 'Back to showcase',
-      enabled: 'Enabled',
-      paused: 'Paused',
+      back: 'Back home',
+      reset: 'Reset',
+      add: 'Add',
+      remove: 'Remove',
+      nullValue: 'Null value',
+      useValue: 'Set a value',
     },
     cta: {
       title: 'Deploy AI without exposing sensitive data.',
@@ -355,7 +493,7 @@ function TopNav({ language, setLanguage, t, page, setPage }) {
       <nav className="mx-auto flex max-w-7xl items-center gap-2 px-2 py-2 sm:px-6 lg:px-8">
         <button onClick={() => goHomeAnchor('#top')} className="flex shrink-0 items-center gap-2">
           <span className="flex h-8 w-8 items-center justify-center overflow-hidden rounded-md border border-white/10 bg-white/5 shadow-glow sm:h-10 sm:w-10">
-            <img src="/flow.png" alt="" className="h-7 w-7 object-contain sm:h-9 sm:w-9" />
+            <img src="/logo.png" alt="" className="h-7 w-7 object-contain sm:h-9 sm:w-9" />
           </span>
           <span className="hidden text-xl font-semibold text-white md:inline">EPSIAL</span>
         </button>
@@ -646,32 +784,51 @@ function ResultPanel({ icon: Icon, title, content }) {
   );
 }
 
-function ConfigurationSection({ t, language, setPage }) {
-  const [state, setState] = useState(database.getState());
-  const enabledTargets = state.targetAiInterfaces.filter((item) => item.enabled).length;
-  const enabledRules = state.piiRules.filter((item) => item.enabled).length;
-  const policyJson = JSON.stringify(
-    {
-      epsialPolicyVersion: '1.0-public-preview',
-      language,
-      aiTargets: state.targetAiInterfaces.map(({ name, url, enabled }) => ({ name, url, enabled })),
-      piiDetectionRules: state.piiRules.reduce((acc, rule) => ({ ...acc, [rule.id]: rule.enabled }), {}),
-      localProcessing: true,
-      cloudTelemetry: false,
-      tokenFormat: '[TYPE_INDEX]',
-    },
-    null,
-    2,
-  );
+function cloneConfig(value) {
+  return JSON.parse(JSON.stringify(value));
+}
 
-  const updateTarget = (id, patch) => setState(database.updateAiInterface(id, patch));
-  const updateRule = (id, enabled) => setState(database.updatePiiRule(id, enabled));
+function formatConfigLabel(key) {
+  return configSectionLabels[key] || key.replaceAll('_', ' ');
+}
+
+function isNullablePath(pathKey) {
+  return ['storage.ttl_seconds', 'storage.db_path', 'storage.key_path', 'monitor.monitor_clipboard'].includes(pathKey);
+}
+
+function getValueAtPath(source, path) {
+  return path.reduce((cursor, key) => cursor?.[key], source);
+}
+
+function setValueAtPath(source, path, value) {
+  if (!path.length) return value;
+  const [head, ...tail] = path;
+  const next = Array.isArray(source) ? [...source] : { ...source };
+  next[head] = setValueAtPath(next[head], tail, value);
+  return next;
+}
+
+function createEmptyValue(example) {
+  if (Array.isArray(example)) return [];
+  if (example && typeof example === 'object') return cloneConfig(example);
+  if (typeof example === 'boolean') return false;
+  if (typeof example === 'number') return 0;
+  return '';
+}
+
+function ConfigurationSection({ t, setPage }) {
+  const [config, setConfig] = useState(() => cloneConfig(defaultPolicyConfig));
+  const policyJson = JSON.stringify(config, null, 2);
+
+  const updatePath = (path, value) => setConfig((current) => setValueAtPath(current, path, value));
+  const resetConfig = () => setConfig(cloneConfig(defaultPolicyConfig));
+
   const downloadJson = () => {
     const blob = new Blob([policyJson], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
     const link = document.createElement('a');
     link.href = url;
-    link.download = `epsial-policy-${new Date().toISOString().slice(0, 10)}.json`;
+    link.download = `epsial-config-${new Date().toISOString().slice(0, 10)}.json`;
     document.body.appendChild(link);
     link.click();
     link.remove();
@@ -691,6 +848,9 @@ function ConfigurationSection({ t, language, setPage }) {
             <button onClick={() => setPage('home')} className="inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-4 py-2 font-semibold text-slate-700 hover:bg-slate-50">
               {t.config.back}
             </button>
+            <button onClick={resetConfig} className="inline-flex items-center justify-center rounded-md border border-slate-300 bg-white px-4 py-2 font-semibold text-slate-700 hover:bg-slate-50">
+              {t.config.reset}
+            </button>
             <button onClick={downloadJson} className="inline-flex items-center justify-center gap-2 rounded-md bg-emerald-500 px-4 py-2 font-semibold text-white hover:bg-emerald-600">
               <DatabaseZap className="h-4 w-4" />
               {t.config.download}
@@ -698,66 +858,294 @@ function ConfigurationSection({ t, language, setPage }) {
           </div>
         </div>
 
-        <div className="grid gap-6 lg:grid-cols-[1fr_0.85fr]">
+        <div className="grid gap-6 xl:grid-cols-[minmax(0,1fr)_0.82fr]">
           <div className="grid gap-6">
             <section className="rounded-md border border-slate-200 bg-white p-5">
-              <div className="mb-5 flex items-center justify-between gap-4">
-                <div>
-                  <h3 className="text-xl font-semibold">{t.config.interfaces}</h3>
-                  <p className="mt-1 text-sm text-slate-500">{enabledTargets} {t.config.activeInterfaces}</p>
-                </div>
-                <button className="inline-flex h-10 w-10 items-center justify-center rounded-md border border-slate-200 text-slate-600 hover:bg-slate-50" title="Add interface">
-                  <Plus className="h-4 w-4" />
-                </button>
-              </div>
-              <div className="grid gap-3">
-                {state.targetAiInterfaces.map((item) => (
-                  <div key={item.id} className="grid gap-3 rounded-md border border-slate-200 bg-slate-50 p-4 md:grid-cols-[auto_1fr_auto] md:items-center">
-                    <Toggle checked={item.enabled} onChange={(checked) => updateTarget(item.id, { enabled: checked })} />
-                    <div>
-                      <p className="font-semibold">{item.name}</p>
-                      <input
-                        value={item.url}
-                        onChange={(event) => updateTarget(item.id, { url: event.target.value })}
-                        className="mt-2 w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-700 outline-none focus:border-emerald-500"
-                      />
-                    </div>
-                    <span className={`rounded-md px-2.5 py-1 text-xs font-semibold ${item.enabled ? 'bg-emerald-100 text-emerald-800' : 'bg-slate-200 text-slate-600'}`}>
-                      {item.enabled ? t.config.enabled : t.config.paused}
-                    </span>
-                  </div>
-                ))}
+              <h2 className="text-xl font-semibold">Général</h2>
+              <div className="mt-5 grid gap-4 md:grid-cols-2">
+                <ConfigField label="log_level" value={config.log_level} path={['log_level']} config={config} updatePath={updatePath} t={t} />
+                <ConfigField label="audit_mode" value={config.audit_mode} path={['audit_mode']} config={config} updatePath={updatePath} t={t} />
               </div>
             </section>
 
-            <section className="rounded-md border border-slate-200 bg-white p-5">
-              <h3 className="text-xl font-semibold">{t.config.rules}</h3>
-              <p className="mt-1 text-sm text-slate-500">{enabledRules} {t.config.activeRules}</p>
-              <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                {state.piiRules.map((rule) => (
-                  <label key={rule.id} className="flex cursor-pointer items-center justify-between rounded-md border border-slate-200 bg-slate-50 p-4">
-                    <span className="font-medium">{ruleLabels[language]?.[rule.id] || rule.label}</span>
-                    <input
-                      type="checkbox"
-                      checked={rule.enabled}
-                      onChange={(event) => updateRule(rule.id, event.target.checked)}
-                      className="h-5 w-5 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500"
-                    />
-                  </label>
-                ))}
-              </div>
-            </section>
+            {Object.entries(config)
+              .filter(([key]) => !['log_level', 'audit_mode'].includes(key))
+              .map(([key, value]) => (
+                <section key={key} className="rounded-md border border-slate-200 bg-white p-5">
+                  <h2 className="text-xl font-semibold">{formatConfigLabel(key)}</h2>
+                  <div className="mt-5">
+                    <ConfigObject value={value} path={[key]} config={config} updatePath={updatePath} t={t} />
+                  </div>
+                </section>
+              ))}
           </div>
 
-          <section className="rounded-md border border-slate-200 bg-slate-950 p-5 text-white">
-            <h3 className="text-xl font-semibold">{t.config.json}</h3>
-            <pre className="mt-5 max-h-[760px] overflow-auto rounded-md border border-white/10 bg-black/30 p-4 text-xs leading-6 text-emerald-100">
+          <section className="sticky top-24 h-fit rounded-md border border-slate-200 bg-slate-950 p-5 text-white">
+            <h2 className="text-xl font-semibold">{t.config.json}</h2>
+            <pre className="mt-5 max-h-[calc(100vh-190px)] overflow-auto rounded-md border border-white/10 bg-black/30 p-4 text-xs leading-6 text-emerald-100">
               <code>{policyJson}</code>
             </pre>
           </section>
         </div>
       </div>
     </main>
+  );
+}
+
+function ConfigObject({ value, path, config, updatePath, t }) {
+  return (
+    <div className="grid gap-4">
+      {Object.entries(value).map(([key, item]) => (
+        <ConfigField key={key} label={key} value={item} path={[...path, key]} config={config} updatePath={updatePath} t={t} />
+      ))}
+    </div>
+  );
+}
+
+function ConfigField({ label, value, path, config, updatePath, t }) {
+  const pathKey = path.join('.');
+
+  if (value === null) {
+    return <NullField label={label} path={path} pathKey={pathKey} updatePath={updatePath} t={t} />;
+  }
+
+  if (typeof value === 'boolean') {
+    return (
+      <div className="flex items-center justify-between gap-4 rounded-md border border-slate-200 bg-slate-50 p-4">
+        <div>
+          <p className="font-medium">{formatConfigLabel(label)}</p>
+          <p className="mt-1 text-xs text-slate-500">{pathKey}</p>
+          {isNullablePath(pathKey) && (
+            <button onClick={() => updatePath(path, null)} className="mt-3 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+              {t.config.nullValue}
+            </button>
+          )}
+        </div>
+        <Toggle checked={value} onChange={(checked) => updatePath(path, checked)} />
+      </div>
+    );
+  }
+
+  if (typeof value === 'number') {
+    return (
+      <LabeledControl label={label} pathKey={pathKey}>
+        <input
+          type="number"
+          step="any"
+          value={value}
+          onChange={(event) => updatePath(path, Number(event.target.value))}
+          className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-500"
+        />
+        {isNullablePath(pathKey) && <NullableButton onClick={() => updatePath(path, null)} label={t.config.nullValue} />}
+      </LabeledControl>
+    );
+  }
+
+  if (typeof value === 'string') {
+    return (
+      <LabeledControl label={label} pathKey={pathKey}>
+        {pathKey === 'log_level' ? (
+          <select
+            value={value}
+            onChange={(event) => updatePath(path, event.target.value)}
+            className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-500"
+          >
+            {['DEBUG', 'INFO', 'WARNING', 'ERROR', 'CRITICAL'].map((level) => (
+              <option key={level} value={level}>{level}</option>
+            ))}
+          </select>
+        ) : (
+          <input
+            value={value}
+            onChange={(event) => updatePath(path, event.target.value)}
+            className="w-full rounded-md border border-slate-200 bg-white px-3 py-2 text-sm outline-none focus:border-emerald-500"
+          />
+        )}
+        {isNullablePath(pathKey) && <NullableButton onClick={() => updatePath(path, null)} label={t.config.nullValue} />}
+      </LabeledControl>
+    );
+  }
+
+  if (Array.isArray(value)) {
+    return <ArrayField label={label} value={value} path={path} pathKey={pathKey} config={config} updatePath={updatePath} t={t} />;
+  }
+
+  return <ObjectField label={label} value={value} path={path} pathKey={pathKey} config={config} updatePath={updatePath} t={t} />;
+}
+
+function LabeledControl({ label, pathKey, children }) {
+  return (
+    <label className="block rounded-md border border-slate-200 bg-slate-50 p-4">
+      <span className="font-medium">{formatConfigLabel(label)}</span>
+      <span className="mt-1 block text-xs text-slate-500">{pathKey}</span>
+      <span className="mt-3 block">{children}</span>
+    </label>
+  );
+}
+
+function NullableButton({ onClick, label }) {
+  return (
+    <button type="button" onClick={onClick} className="mt-3 rounded-md border border-slate-300 bg-white px-3 py-1.5 text-xs font-semibold text-slate-700 hover:bg-slate-50">
+      {label}
+    </button>
+  );
+}
+
+function NullField({ label, path, pathKey, updatePath, t }) {
+  const isNumber = pathKey === 'storage.ttl_seconds';
+  const isBoolean = pathKey === 'monitor.monitor_clipboard';
+
+  const setDefaultValue = () => {
+    if (isBoolean) {
+      updatePath(path, true);
+    } else if (isNumber) {
+      updatePath(path, 0);
+    } else {
+      updatePath(path, '');
+    }
+  };
+
+  return (
+    <div className="rounded-md border border-dashed border-slate-300 bg-slate-50 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <p className="font-medium">{formatConfigLabel(label)}</p>
+          <p className="mt-1 text-xs text-slate-500">{pathKey}</p>
+        </div>
+        <span className="rounded-md bg-slate-200 px-2.5 py-1 text-xs font-semibold text-slate-600">{t.config.nullValue}</span>
+      </div>
+      <button onClick={setDefaultValue} className="mt-4 inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+        <Plus className="h-4 w-4" />
+        {t.config.useValue}
+      </button>
+    </div>
+  );
+}
+
+function ObjectField({ label, value, path, pathKey, config, updatePath, t }) {
+  const entries = Object.entries(value);
+  const isEditableMap = entries.every(([, item]) => typeof item === 'string' || typeof item === 'number' || typeof item === 'boolean');
+
+  if (isEditableMap) {
+    const addEntry = () => {
+      const baseKey = 'new_key';
+      let nextKey = `${baseKey}_${entries.length + 1}`;
+      let suffix = entries.length + 1;
+      while (Object.hasOwn(value, nextKey)) {
+        suffix += 1;
+        nextKey = `${baseKey}_${suffix}`;
+      }
+      updatePath(path, { ...value, [nextKey]: '' });
+    };
+    const updateKey = (oldKey, newKey) => {
+      const next = {};
+      Object.entries(value).forEach(([key, item]) => {
+        next[key === oldKey ? newKey : key] = item;
+      });
+      updatePath(path, next);
+    };
+    const updateValue = (key, nextValue) => updatePath(path, { ...value, [key]: nextValue });
+    const removeEntry = (keyToRemove) => {
+      const next = { ...value };
+      delete next[keyToRemove];
+      updatePath(path, next);
+    };
+
+    return (
+      <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
+        <div className="flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <h3 className="font-semibold">{formatConfigLabel(label)}</h3>
+            <p className="mt-1 text-xs text-slate-500">{pathKey}</p>
+          </div>
+          <button onClick={addEntry} className="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+            <Plus className="h-4 w-4" />
+            {t.config.add}
+          </button>
+        </div>
+        <div className="mt-4 grid gap-3">
+          {entries.length ? entries.map(([key, item]) => (
+            <div key={key} className="grid gap-2 rounded-md border border-slate-200 bg-white p-3 md:grid-cols-[0.8fr_1fr_auto] md:items-center">
+              <input value={key} onChange={(event) => updateKey(key, event.target.value)} className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 outline-none focus:border-emerald-500" />
+              <input value={String(item)} onChange={(event) => updateValue(key, event.target.value)} className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 outline-none focus:border-emerald-500" />
+              <button onClick={() => removeEntry(key)} className="rounded-md border border-red-200 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50">
+                {t.config.remove}
+              </button>
+            </div>
+          )) : (
+            <p className="rounded-md border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-500">Objet vide.</p>
+          )}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
+      <h3 className="font-semibold">{formatConfigLabel(label)}</h3>
+      <p className="mt-1 text-xs text-slate-500">{pathKey}</p>
+      <div className="mt-4">
+        <ConfigObject value={value} path={path} config={config} updatePath={updatePath} t={t} />
+      </div>
+    </div>
+  );
+}
+
+function ArrayField({ label, value, path, pathKey, config, updatePath, t }) {
+  const exampleValue = getValueAtPath(defaultPolicyConfig, path)?.[0] ?? '';
+  const addItem = () => updatePath(path, [...value, createEmptyValue(exampleValue)]);
+  const updateItem = (index, item) => updatePath(path, value.map((current, currentIndex) => (currentIndex === index ? item : current)));
+  const removeItem = (index) => updatePath(path, value.filter((_, currentIndex) => currentIndex !== index));
+
+  return (
+    <div className="rounded-md border border-slate-200 bg-slate-50 p-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <div>
+          <h3 className="font-semibold">{formatConfigLabel(label)}</h3>
+          <p className="mt-1 text-xs text-slate-500">{pathKey}</p>
+        </div>
+        <button onClick={addItem} className="inline-flex items-center gap-2 rounded-md border border-slate-300 bg-white px-3 py-2 text-sm font-semibold text-slate-700 hover:bg-slate-50">
+          <Plus className="h-4 w-4" />
+          {t.config.add}
+        </button>
+      </div>
+      <div className="mt-4 grid gap-3">
+        {value.length ? value.map((item, index) => (
+          <ArrayItem key={`${pathKey}-${index}`} item={item} index={index} onChange={(next) => updateItem(index, next)} onRemove={() => removeItem(index)} path={[...path, index]} config={config} updatePath={updatePath} t={t} />
+        )) : (
+          <p className="rounded-md border border-dashed border-slate-300 bg-white p-4 text-sm text-slate-500">Liste vide.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+function ArrayItem({ item, index, onChange, onRemove, path, config, updatePath, t }) {
+  if (item && typeof item === 'object' && !Array.isArray(item)) {
+    return (
+      <div className="rounded-md border border-slate-200 bg-white p-4">
+        <div className="mb-4 flex items-center justify-between gap-3">
+          <p className="font-semibold">Élément {index + 1}</p>
+          <button onClick={onRemove} className="rounded-md border border-red-200 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50">
+            {t.config.remove}
+          </button>
+        </div>
+        <ConfigObject value={item} path={path} config={config} updatePath={updatePath} t={t} />
+      </div>
+    );
+  }
+
+  return (
+    <div className="grid gap-2 rounded-md border border-slate-200 bg-white p-3 md:grid-cols-[1fr_auto] md:items-center">
+      <input
+        value={String(item)}
+        onChange={(event) => onChange(event.target.value)}
+        className="rounded-md border border-slate-200 bg-white px-3 py-2 text-sm text-slate-950 outline-none focus:border-emerald-500"
+      />
+      <button onClick={onRemove} className="rounded-md border border-red-200 px-3 py-2 text-sm font-semibold text-red-700 hover:bg-red-50">
+        {t.config.remove}
+      </button>
+    </div>
   );
 }
 

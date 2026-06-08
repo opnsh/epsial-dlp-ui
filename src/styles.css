@@ -22,8 +22,15 @@ body {
 
 button,
 input,
+select,
 textarea {
   font: inherit;
+}
+
+input,
+select,
+textarea {
+  color-scheme: light;
 }
 
 button {
